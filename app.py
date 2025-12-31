@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 from groq import Groq
-from st-paywall import add_auth
+from st_paywall import add_auth
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 st.title("CutMyBillsAI – Cut Bills, Invest the Savings")
