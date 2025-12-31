@@ -71,7 +71,7 @@ if "success" in st.query_params:
                     messages=[{"role": "user", "content": prompt_premium}],
                     max_tokens=800
                 )
-        st.write(response_prem.choices[0].message.content)
+    st.write(response_prem.choices[0].message.content)
 # Paywall starts here 
 add_auth(
     required=True,
