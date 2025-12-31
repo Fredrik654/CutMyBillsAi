@@ -1,7 +1,8 @@
 import streamlit as st
 import os
 from groq import Groq
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+# Read key from Streamlit secrets (Cloud) or fallback to env var (local testing)
+GROQ_API_KEY = st.secrets.get("GROQ_API_KEY")
 
 st.title("CutMyBillsAI – Cut Bills, Invest the Savings")
 
