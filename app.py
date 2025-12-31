@@ -71,7 +71,7 @@ with st.spinner("Generating premium plan..."):
             messages=[{"role": "user", "content": prompt_premium}],
             max_tokens=800
         )
- st.write(response_prem.choices[0].message.content)
+     st.write(response_prem.choices[0].message.content)
 # Paywall starts here (this should be at the same level as the free block)
 add_auth(
     required=True,
