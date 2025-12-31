@@ -65,13 +65,13 @@ if "success" in st.query_params:
     5/10-year projections (assume 8-10% average returns, compound monthly).
     Tease long-term boom potential like early tech investors. Disclaimers.
     """
-        with st.spinner("Generating premium plan..."):
+     with st.spinner("Generating premium plan..."):
                 response_prem = client.chat.completions.create(
                     model="llama-3.1-8b-instant",
                     messages=[{"role": "user", "content": prompt_premium}],
                     max_tokens=800
                 )
-             st.write(response_prem.choices[0].message.content)
+        st.write(response_prem.choices[0].message.content)
 # Paywall starts here 
 add_auth(
     required=True,
