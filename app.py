@@ -65,15 +65,14 @@ if "success" in st.query_params:
     5/10-year projections (assume 8-10% average returns, compound monthly).
     Tease long-term boom potential like early tech investors. Disclaimers.
     """
-    with st.spinner("Generating premium plan..."):
+with st.spinner("Generating premium plan..."):
         response_prem = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[{"role": "user", "content": prompt_premium}],
             max_tokens=800
         )
-      st.write(response_prem.choices[0].message.content)
-
-# Paywall starts here
+    st.write(response_prem.choices[0].message.content)
+# Paywall starts here (this should be at the same indent level as the free block)
 add_auth(
     required=True,
     price=499,
@@ -81,7 +80,7 @@ add_auth(
     stripe_api_key=os.environ.get("STRIPE_API_KEY")
 )
 
-# Premium content (only after successful payment)
+# Premium content - only shows after successful payment
 st.success("Payment successful! Here's your full strategy.")
 
 prompt_premium = f"""
@@ -98,4 +97,4 @@ with st.spinner("Generating premium plan..."):
         messages=[{"role": "user", "content": prompt_premium}],
         max_tokens=800
     )
-    st.write(response_prem.choices[0].message.content)
+    st.write(response_prem.choices[0].message.content)  # This MUST be indented 4 more spaces than 'with'
