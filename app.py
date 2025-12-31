@@ -30,13 +30,11 @@ if st.button("Get Free Savings Estimate"):
         st.info("Unlock full investment strategy, rebates, and 10-year projections for $4.99!")
 from st_paywall import add_auth
 
-# Paywall - Stripe auto-prioritizes Apple Pay on iOS
 add_auth(
     required=True,
     price=499,  # $4.99 in cents
     name="Full Investment Strategy Unlock",
-    stripe_api_key=os.environ.get("STRIPE_API_KEY"),
-    checkout_button_text="Unlock with Apple Pay / Card ($4.99)"
+    stripe_api_key=os.environ.get("STRIPE_API_KEY")
 )
 
 # This only shows after successful payment
