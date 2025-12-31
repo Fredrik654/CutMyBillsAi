@@ -30,7 +30,48 @@ if st.button("Get Free Savings Estimate"):
         st.info("Unlock full investment strategy, rebates, and 10-year projections for $4.99!")
 from st_paywall import add_auth
 
-add_auth(
+import stripe
+
+stripe.api_key = os.environ.get("STRIPE_API_KEY")
+
+# After free estimate...
+if st.button("Unlock Full Strategy ($4.99)"):
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],  # Stripe auto-adds Apple Pay on iOS
+            line_items=[{
+                'price_data': {
+                    'currency': 'cad',
+                    'product_data': {'name': 'Full Investment Strategy Unlock'},
+                    'unit_amount': 499,  # $4.99 CAD
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url = "https://cutmybillsai-4xvx5lmgtsymg5rz6taant.streamlit.app/?success=true",
+            cancel_url = "https://cutmybillsai-4xvx5lmgtsymg5rz6taant.streamlit.app/?cancel=true",
+        )
+        st.markdown(f"<a href='{session.url}' target='_blank'>Pay with Apple Pay / Card ($4.99)</a>", unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"Payment setup error: {e}")
+
+# Premium content (check query param for success)
+if "success" in st.query_params:
+    st.success("Payment successful! Here's your full strategy.")
+    prompt_premium = f"""
+    Aggressive Ontario optimizer. User: bills ${total_bills}, household {household}, motivation {energy_level}/10, goal {goal}.
+    Add rebates (Home Renovation Savings™ up to 30% on insulation/heat pumps).
+    Mix low-risk (GICs/HISAs ~3-4.5%) with higher-risk (tech/AI ETFs QQQ/ARKK ~8-10% returns, renewables TAN).
+    5/10-year projections (assume 8-10% average returns, compound monthly).
+    Tease long-term boom potential like early tech investors. Disclaimers.
+    """
+    with st.spinner("Generating premium plan..."):
+        response_prem = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt_premium}],
+            max_tokens=800
+        )
+        st.write(response_prem.choices[0].message.content)add_auth(
     required=True,
     price=499,  # $4.99
     name="Full Investment Unlock"
