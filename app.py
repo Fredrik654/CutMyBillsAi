@@ -1,7 +1,6 @@
 import streamlit as st
 import os
 from groq import Groq
-from st_paywall import add_auth
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 st.title("CutMyBillsAI – Cut Bills, Invest the Savings")
@@ -29,12 +28,42 @@ if st.button("Get Free Savings Estimate"):
         st.write(response.choices[0].message.content)
         st.info("Unlock full investment strategy, rebates, and 10-year projections for $4.99!")
 from st_paywall import add_auth
+# Check if user is logged in (this is safe and required)
+if not st.user.is_logged_in:
+    st.info("Please log in to unlock the full strategy.")
+    if st.button("Log in with Google"):
+        st.login()                    # Triggers Google login (needs secrets config)
+    st.stop()                         # Stops app until logged in
 
-import stripe
+# User is logged in → now enforce subscription
+add_auth(
+    required=True,                          # Blocks if not subscribed
+    show_redirect_button=True,
+    subscription_button_text="Unlock Full Strategy ($4.99 CAD)",
+    button_color="#4CAF50",                 # Optional: nice green color
+    use_sidebar=False                       # False = button in main area (usually better)
+)
 
+# ── Only subscribed users reach here ──
+st.success("Welcome! Generating your full investment strategy...")
+# Now put your PREMIUM Groq code here ↓ (move it from wherever it is now)
+with st.spinner("Generating premium plan..."):
+    prompt_premium = f"""
+    Aggressive Ontario optimizer. User: bills ${total_bills}, household {household}, 
+    motivation {energy_level}/10, goal {goal}.
+    ... (your full long prompt here)
+    """
+    response_prem = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[{"role": "user", "content": prompt_premium}],
+        max_tokens=800
+    )
+    st.markdown(response_prem.choices[0].message.content)   # or st.write(...)
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
 
 # After free estimate...
+import stripe
+stripe.api_key = os.environ.get("STRIPE_API_KEY")
 if st.button("Unlock Full Strategy ($4.99)"):
     try:
         session = stripe.checkout.Session.create(
