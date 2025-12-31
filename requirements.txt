@@ -1,2 +1,4 @@
 streamlit
 groq
+st-paywall
+stripe
