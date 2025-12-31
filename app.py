@@ -75,9 +75,10 @@ if "success" in st.query_params:
 # Paywall starts here 
 add_auth(
     required=True,
-    price=499,
-    name="Full Investment Strategy Unlock",
-    stripe_api_key=os.environ.get("STRIPE_API_KEY")
+    show_redirect_button=True,
+    subscription_button_text="Unlock Full Strategy – $4.99 CAD",
+    button_color="#4CAF50",  # optional green
+    use_sidebar=True         # or False
 )
 
 # Premium content - only shows after successful payment
