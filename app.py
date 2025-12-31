@@ -2,32 +2,37 @@ import streamlit as st
 import os
 from groq import Groq
 
-# Initialize Groq client at the very top (runs on every app load)
+# ── Initialize Groq client ONCE at the top (runs on every page load/rerun) ──
 GROQ_API_KEY = st.secrets.get("GROQ_API_KEY")
 
-st.title("CutMyBillsAI – Cut Bills, Invest the Savings")
+if not GROQ_API_KEY:
+    st.error("GROQ_API_KEY is missing! Add it in Streamlit Cloud → Settings → Secrets.")
+    st.stop()
+
+client = Groq(api_key=GROQ_API_KEY)
+
+# ── Now the rest of your app ──
+st.title("CutMyBillsAI - Cut Bills, Invest the Savings")
 
 total_bills = st.number_input("Monthly total bills $", min_value=100, max_value=1000, value=350)
-household = st.text_input("Household details (e.g., house, winter high heat)")
-energy_level = st.slider("Motivation level (1-10)", 1, 10, 7)
-goal = st.text_input("Savings goal (e.g., emergency fund)")
+# ... your other inputs (household, energy_level, goal) ...
 
 if st.button("Get Free Savings Estimate"):
     prompt = f"""
     You are a practical Ontario bill optimizer for 2025.
     User: bills ${total_bills}, household {household}, motivation {energy_level}/10, goal {goal}.
-    Estimate current breakdown using Ontario averages (electricity $100-140, gas $80-150 winter, water $90, internet $60-100).
+    Estimate current breakdown using Ontario averages...
     Give 5-8 quick tips to cut bills + estimated $ savings (tease $2200/year potential).
     Short, encouraging, honest. No investments yet.
     """
     with st.spinner("Calculating..."):
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",  # Fast, reliable, always available
+        response = client.chat.completions.create(   # ← client now always exists here
+            model="llama-3.1-8b-instant",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=500
         )
-        st.write("### Free Savings Preview")
-        st.write(response.choices[0].message.content)
+        st.markdown("### Free Savings Preview")
+        st.markdown(response.choices[0].message.content)
         st.info("Unlock full investment strategy, rebates, and 10-year projections for $4.99!")
 from st_paywall import add_auth
 # Safe check (avoids AttributeError if auth not configured yet)
