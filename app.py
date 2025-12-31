@@ -30,12 +30,20 @@ if st.button("Get Free Savings Estimate"):
         st.info("Unlock full investment strategy, rebates, and 10-year projections for $4.99!")
 from st_paywall import add_auth
 # Check if user is logged in (this is safe and required)
-if not st.user.is_logged_in:
-    st.info("Please log in to unlock the full strategy.")
-    if st.button("Log in with Google"):
-        st.login()                    # Triggers Google login (needs secrets config)
-    st.stop()                         # Stops app until logged in
+import streamlit as st
+from st_paywall import add_auth
 
+# Safe check (avoids AttributeError if auth not configured yet)
+if hasattr(st.user, "is_logged_in") and st.user.is_logged_in:
+    # User is logged in → proceed to subscription check
+    add_auth(required=True, show_redirect_button=True, subscription_button_text="Unlock Strategy ($4.99 CAD)")
+    # Premium content here...
+else:
+    st.info("Please log in to access premium features.")
+    if st.button("Log in with Google"):
+        st.login()
+    st.stop()
+    st.info("Please log in to unlock the full strategy.")
 # User is logged in → now enforce subscription
 add_auth(
     required=True,                          # Blocks if not subscribed
