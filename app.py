@@ -34,8 +34,7 @@ add_auth(
     price=499,  # $4.99
     name="Full Investment Strategy Unlock",
     stripe_api_key=os.environ.get("STRIPE_API_KEY"),
-    stripe_publishable_key=os.environ.get("STRIPE_PUBLISHABLE_KEY")
-)
+   
 
 # Premium content after payment
 st.success("Payment successful! Here's your full strategy.")
