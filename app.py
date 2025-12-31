@@ -79,10 +79,11 @@ add_auth(
     price=499,
     name="Full Investment Strategy Unlock",
     stripe_api_key=os.environ.get("STRIPE_API_KEY")
-) 
+)
 
-# Premium content (only after pay)
+# Premium content (only after successful payment)
 st.success("Payment successful! Here's your full strategy.")
+
 prompt_premium = f"""
 Aggressive Ontario optimizer. User: bills ${total_bills}, household {household}, motivation {energy_level}/10, goal {goal}.
 Add rebates (Home Renovation Savings™ up to 30% on insulation/heat pumps).
@@ -90,6 +91,7 @@ Mix low-risk (GICs/HISAs ~3-4.5%) with higher-risk (tech/AI ETFs QQQ/ARKK ~8-10%
 5/10-year projections (assume 8-10% average returns, compound monthly).
 Tease long-term boom potential like early tech investors. Disclaimers.
 """
+
 with st.spinner("Generating premium plan..."):
     response_prem = client.chat.completions.create(
         model="llama-3.1-8b-instant",
