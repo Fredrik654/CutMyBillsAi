@@ -29,15 +29,15 @@ if st.button("Get Free Savings Estimate"):
         st.write(response.choices[0].message.content)
         st.info("Unlock full investment strategy, rebates, and 10-year projections for $4.99!")
 from st_paywall import add_auth
-
 add_auth(
     required=True,
-    price=499,  # $4.99 in cents
+    price=499,  # $4.99
     name="Full Investment Strategy Unlock",
-    stripe_api_key=os.environ.get("STRIPE_API_KEY")
+    stripe_api_key=os.environ.get("STRIPE_API_KEY"),
+    stripe_publishable_key=os.environ.get("STRIPE_PUBLISHABLE_KEY")
 )
 
-# This only shows after successful payment
+# Premium content after payment
 st.success("Payment successful! Here's your full strategy.")
 prompt_premium = f"""
 Aggressive Ontario optimizer. User: bills ${total_bills}, household {household}, motivation {energy_level}/10, goal {goal}.
