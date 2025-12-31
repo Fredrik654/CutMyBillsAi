@@ -39,7 +39,7 @@ add_auth(
     name="Full Investment Strategy Unlock",
     stripe_api_key=os.environ.get("STRIPE_API_KEY"),  # From secrets
     checkout_button_text="Unlock with Apple Pay / Card ($4.99)",
-    payment_methods=["apple_pay", "card", "google_pay"]  # Prioritizes Apple Pay on iOS
+   # Prioritizes Apple Pay on iOS
 )
 
 # This section only shows after successful payment
