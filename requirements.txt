@@ -1,4 +1,4 @@
 streamlit
 groq
-st-paywall
+st-paywall==0.2.0  # Pin to stable version
 stripe
