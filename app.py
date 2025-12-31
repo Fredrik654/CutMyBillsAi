@@ -28,27 +28,31 @@ if st.button("Get Free Savings Estimate"):
         st.write("### Free Savings Preview")
         st.write(response.choices[0].message.content)
         st.info("Unlock full investment strategy, rebates, and 10-year projections for $4.99!")
-
-# Paywall tease - we'll add full paywall next
 from st_paywall import add_auth
 
 # After free estimate...
 add_auth(
     required=True,
-    price=499,  # $4.99
+    price=499,  # $4.99 in cents
     name="Full Investment Unlock",
-    stripe_api_key="sk_test_your-secret-key-here",  # Paste your test secret key
-    payment_methods=["apple_pay", "card", "google_pay"]  # Apple Pay first
+    stripe_api_key=os.environ.get("STRIPE_API_KEY"),  # From secrets
+    checkout_button_text="Unlock with Apple Pay / Card ($4.99)",
+    payment_methods=["apple_pay", "card", "google_pay"]  # Prioritizes Apple Pay
 )
 
-# Premium content (only after pay)
-st.success("Unlocked! Here's the full strategy.")
+# This only runs after successful payment
+st.success("Payment successful! Here's your full strategy.")
 prompt_premium = f"""
 Aggressive Ontario optimizer. User: bills ${total_bills}, household {household}, motivation {energy_level}/10, goal {goal}.
-Add rebates, investments (GICs + tech ETFs), 5/10-year projections at 8-10% returns, boom tease.
+Add rebates (Home Renovation Savings™ up to 30% on insulation/heat pumps).
+Mix low-risk (GICs/HISAs ~3-4.5%) with higher-risk (tech/AI ETFs QQQ/ARKK ~8-10% returns, renewables TAN).
+5/10-year projections (assume 8-10% average returns, compound monthly).
+Tease long-term boom potential like early tech investors. Disclaimers.
 """
-response_prem = client.chat.completions.create(
-    model="llama-3.1-8b-instant",
-    messages=[{"role": "user", "content": prompt_premium}]
-)
-st.write(response_prem.choices[0].message.content)
+with st.spinner("Generating premium plan..."):
+    response_prem = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[{"role": "user", "content": prompt_premium}],
+        max_tokens=800
+    )
+    st.write(response_prem.choices[0].message.content)
