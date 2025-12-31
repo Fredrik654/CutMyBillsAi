@@ -72,7 +72,7 @@ with st.spinner("Generating premium plan..."):
             max_tokens=800
         )
      st.write(response_prem.choices[0].message.content)
-# Paywall starts here (this should be at the same level as the free block)
+# Paywall starts here 
 add_auth(
     required=True,
     price=499,
@@ -97,4 +97,4 @@ with st.spinner("Generating premium plan..."):
         messages=[{"role": "user", "content": prompt_premium}],
         max_tokens=800
     )
-    st.write(response_prem.choices[0].message.content)  # This line is indented 4 spaces more than 'with'
+    st.write(response_prem.choices[0].message.content)
