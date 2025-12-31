@@ -71,11 +71,15 @@ if "success" in st.query_params:
             messages=[{"role": "user", "content": prompt_premium}],
             max_tokens=800
         )
-        st.write(response_prem.choices[0].message.content)add_auth(
+      st.write(response_prem.choices[0].message.content)
+
+# Paywall starts here
+add_auth(
     required=True,
-    price=499,  # $4.99
-    name="Full Investment Unlock"
-)
+    price=499,
+    name="Full Investment Strategy Unlock",
+    stripe_api_key=os.environ.get("STRIPE_API_KEY")
+) 
 
 # Premium content (only after pay)
 st.success("Payment successful! Here's your full strategy.")
