@@ -1,7 +1,8 @@
 import streamlit as st
 import os
 from groq import Groq
-# Read key from Streamlit secrets (Cloud) or fallback to env var (local testing)
+
+# Initialize Groq client at the very top (runs on every app load)
 GROQ_API_KEY = st.secrets.get("GROQ_API_KEY")
 
 st.title("CutMyBillsAI – Cut Bills, Invest the Savings")
