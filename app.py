@@ -55,10 +55,11 @@ if st.button("Get Free Savings Estimate"):
             st.error(f"AI error: {str(e)}. Try again or check API key/credits.")
 
 # ── Paywall with direct Stripe Checkout (supports Apple Pay 1-tap on iOS) ──
+# ── Paywall Button (visible to all) ──
 if st.button("Unlock Full Strategy ($4.99 CAD)"):
     try:
         session = stripe.checkout.Session.create(
-            payment_method_types=['card'],  # Stripe auto-adds Apple Pay on iOS
+            payment_method_types=['card'],  # Auto-adds Apple Pay on iOS
             line_items=[{
                 'price_data': {
                     'currency': 'cad',
@@ -68,16 +69,17 @@ if st.button("Unlock Full Strategy ($4.99 CAD)"):
                 'quantity': 1,
             }],
             mode='payment',
-            success_url = "https://cutmybillsai-4xvx5lmgtsymg5rz6taant.streamlit.app/?success=true",
-            cancel_url = "https://cutmybillsai-4xvx5lmgtsymg5rz6taant.streamlit.app/?cancel=true",
+            success_url = "https://cutmybillsai-4xvx5lmgtsymg5rz6taant.streamlit.app/?payment=success",
+            cancel_url = "https://cutmybillsai-4xvx5lmgtsymg5rz6taant.streamlit.app/?payment=cancel",
         )
-        st.markdown(f"<a href='{session.url}' target='_blank' style='font-size:20px; color:#4CAF50;'>Pay with Apple Pay / Card ($4.99 CAD)</a>", unsafe_allow_html=True)
+        st.markdown(f"<a href='{session.url}' target='_blank' style='font-size:20px; color:#4CAF50; padding:12px; background:#fff; border-radius:8px; text-decoration:none; display:inline-block;'>Pay with Apple Pay / Card ($4.99 CAD)</a>", unsafe_allow_html=True)
     except Exception as e:
         st.error(f"Payment setup error: {str(e)}")
 
-# ── Premium content (only shows after successful payment via query param) ──
-if "success" in st.query_params:
-    st.success("Payment successful! Here's your full strategy.")
+# ── Premium Content - ONLY shows after successful payment ──
+if st.query_params.get("payment") == "success":
+    st.success("Payment successful! Here's your full premium strategy:")
+    
     prompt_premium = f"""
     Aggressive Ontario optimizer. User: bills ${total_bills}, household {household}, motivation {energy_level}/10, goal {goal}.
     Add rebates (Home Renovation Savings™ up to 30% on insulation/heat pumps).
@@ -95,3 +97,6 @@ if "success" in st.query_params:
             st.markdown(response_prem.choices[0].message.content)
         except Exception as e:
             st.error(f"Premium AI error: {str(e)}")
+else:
+    # Optional: Tease premium for non-payers
+    st.info("Unlock the full strategy, rebates details, and long-term projections for $4.99 CAD!")
