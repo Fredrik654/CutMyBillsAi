@@ -37,10 +37,10 @@ if st.button("Get Free Savings Estimate"):
 from st_paywall import add_auth
 # Safe check (avoids AttributeError if auth not configured yet)
 # Require login + subscription for premium
-    st.info("Please log in to unlock premium features.")
-    if st.button("Log in with Google"):
-        st.login()
-    st.stop()
+st.info("Please log in to unlock premium features.")
+if st.button("Log in with Google"):
+    st.login()
+     st.stop()
 
 # User is logged in → check if subscribed
 add_auth(
