@@ -19,7 +19,15 @@ if not stripe.api_key:
     st.warning("Stripe key not set — paywall will not work. Add STRIPE_API_KEY in secrets.")
 
 st.title("CutMyBillsAI – Cut Bills, Invest the Savings")
-
+# Disclaimer at top (visible to all)
+st.markdown("""
+**Important Disclaimer**  
+This tool provides general estimates and ideas only. It is **not financial, legal, or professional advice**.  
+Savings amounts are approximate and depend on your actual usage, location, and provider.  
+Investments carry risk of loss — past performance does not guarantee future results.  
+Always consult a licensed financial advisor or professional before making decisions.  
+Use at your own risk.
+""")
 total_bills = st.number_input("Monthly total bills $", min_value=100, max_value=10000, value=350)
 household = st.text_input("Household details (e.g., mortgage, hydro/Water, winter heat, Summer A/C)")
 energy_level = st.slider("Motivation level (1-10)", 1, 10, 7)
