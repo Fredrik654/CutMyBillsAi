@@ -20,8 +20,8 @@ if not stripe.api_key:
 
 st.title("CutMyBillsAI – Cut Bills, Invest the Savings")
 
-total_bills = st.number_input("Monthly total bills $", min_value=100, max_value=1000, value=350)
-household = st.text_input("Household details (e.g., house, winter high heat)")
+total_bills = st.number_input("Monthly total bills $", min_value=100, max_value=10000, value=350)
+household = st.text_input("Household details (e.g., mortgage, hydro/Water, winter heat, Summer A/C)")
 energy_level = st.slider("Motivation level (1-10)", 1, 10, 7)
 goal = st.text_input("Savings goal (e.g., emergency fund)")
 
