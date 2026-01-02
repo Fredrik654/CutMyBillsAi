@@ -1,6 +1,12 @@
 [theme]
-primaryColor = "#10B981"       # Emerald green - money/success vibe
-backgroundColor = "#0F172A"    # Deep dark slate background
-secondaryBackgroundColor = "#1E293B"  # Slightly lighter dark for cards/forms
-textColor = "#F1F5F9"          # Light gray-white text
-font = "sans serif"            # Clean & modern font
+primaryColor = "#00FF9F"       # Neon green - super pop for buttons, sliders, highlights
+backgroundColor = "#0A0E17"    # Deep midnight black-blue
+secondaryBackgroundColor = "#111827"  # Slightly lighter dark for cards/forms
+textColor = "#E0F2FE"          # Soft electric blue-white text
+font = "sans serif"            # Clean & modern
+
+[theme.light]                  # Nice fallback light mode
+primaryColor = "#00D084"       # Brighter green for light mode
+backgroundColor = "#F0F9FF"
+secondaryBackgroundColor = "#E0F2FE"
+textColor = "#0F172A"
