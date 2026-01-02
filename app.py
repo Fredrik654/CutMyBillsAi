@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 from groq import Groq
+import stripe
 import pandas as pd
 import altair as alt
 
