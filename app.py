@@ -93,10 +93,8 @@ teaser_chart = alt.Chart(df_growth).mark_area(color="#10B981").encode(
 st.altair_chart(teaser_chart, use_container_width=True)
 st.info("This is a basic tease — unlock the **full personalized plan**, rebates, and detailed 10-year growth for just $4.99 CAD!")
 # ── Paywall with direct Stripe Checkout ──
-st.markdown("### Unlock Full Strategy")
 if st.button("Unlock Full Strategy ($4.99 CAD)"):
     try:
-        st.write("Creating Stripe session... (debug)")
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],  # Stripe auto-adds Apple Pay on iOS
             line_items=[{
@@ -112,7 +110,7 @@ if st.button("Unlock Full Strategy ($4.99 CAD)"):
             cancel_url = "https://cutmybillsai-4xvx5lmgtsymg5rz6taant.streamlit.app/?cancel=true",
         )
         st.markdown(f"<a href='{session.url}' target='_blank' style='font-size:20px; color:#fff; background:#10B981; padding:12px 24px; border-radius:8px; text-decoration:none; display:inline-block;'>Pay with Apple Pay / Card ($4.99 CAD)</a>", unsafe_allow_html=True)
-  except stripe.error.InvalidRequestError as e:
-    st.error(f"Stripe invalid request: {str(e)}. Check product/amount in Stripe dashboard.")
-except Exception as e:
-    st.error(f"Payment error: {str(e)}. Try again or contact support.")
+    except stripe.error.InvalidRequestError as e:
+        st.error(f"Stripe invalid request: {str(e)}. Check product/amount in Stripe dashboard.")
+    except Exception as e:
+        st.error(f"Payment setup error: {str(e)}. Try again or check Stripe keys.")
