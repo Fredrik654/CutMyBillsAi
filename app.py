@@ -3,7 +3,20 @@ import os
 from groq import Groq
 import pandas as pd
 import altair as alt
-
+st.markdown("""
+<style>
+    .stApp { background-color: #000814 !important; }
+    .stButton>button { 
+        background-color: #00FFA3 !important; 
+        color: #000814 !important; 
+        border-radius: 12px !important; 
+        padding: 12px 24px !important; 
+        box-shadow: 0 0 15px #00FFA3 !important; 
+        font-weight: bold !important;
+    }
+    h1 { color: #00FFA3 !important; text-shadow: 0 0 10px #00FFA3 !important; }
+</style>
+""", unsafe_allow_html=True)
 # ── Groq setup ──
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
