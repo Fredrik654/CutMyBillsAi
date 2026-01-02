@@ -132,11 +132,10 @@ teaser_chart = alt.Chart(df_growth).mark_area(color="#00FFA3").encode(
 ).properties(width=600, height=300)
 st.altair_chart(teaser_chart, use_container_width=True)
 st.info("This is a basic tease — unlock the **full personalized plan**, rebates, and detailed 10-year growth for just $4.99 CAD!")
-
 # ── Paywall with direct Stripe Checkout ──
 st.markdown("---")
 st.markdown("**Ready to turn these savings into real wealth?**")
-if st.button("Unlock Full Strategy ($4.99 CAD)"):
+if st.button("Unlock Full Strategy ($4.99 CAD)", key="unlock_button"):  # Add unique key to avoid duplicate ID
     try:
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],  # Auto-adds Apple Pay on iOS
@@ -155,7 +154,6 @@ if st.button("Unlock Full Strategy ($4.99 CAD)"):
         st.markdown(f"<a href='{session.url}' target='_blank' style='font-size:20px; color:#000; background:#00FFA3; padding:14px 30px; border-radius:12px; text-decoration:none; box-shadow: 0 0 15px #00FFA3; display:inline-block; font-weight:bold;'>Proceed to Secure Payment</a>", unsafe_allow_html=True)
     except Exception as e:
         st.error(f"Payment setup error: {str(e)}")
-
 # ── Premium content ──
 if "success" in st.query_params:
     st.success("Payment successful! Here's your full strategy to turn savings into reality.")
