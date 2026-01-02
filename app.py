@@ -1,7 +1,6 @@
 import streamlit as st
 import os
 from groq import Groq
-import stripe
 import pandas as pd
 import altair as alt
 
@@ -77,6 +76,28 @@ with st.spinner("Finding your savings..."):
     )
     st.markdown("**Quick Wins:**")
     st.markdown(f"**{response.choices[0].message.content}**")
+# ── Paywall with direct Stripe Checkout ──
+st.markdown("---")
+st.markdown("**Ready to turn these savings into real wealth?**")
+if st.button("Unlock Full Strategy ($4.99 CAD)"):
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],  # Auto-adds Apple Pay on iOS
+            line_items=[{
+                'price_data': {
+                    'currency': 'cad',
+                    'product_data': {'name': 'Full Investment Strategy Unlock'},
+                    'unit_amount': 499,  # $4.99 CAD
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url = "https://cutmybillsai-4xvx5lmgtsymg5rz6taant.streamlit.app/?success=true",
+            cancel_url = "https://cutmybillsai-4xvx5lmgtsymg5rz6taant.streamlit.app/?cancel=true",
+        )
+        st.markdown(f"<a href='{session.url}' target='_blank' style='font-size:20px; color:#000; background:#00FFA3; padding:14px 30px; border-radius:12px; text-decoration:none; box-shadow: 0 0 15px #00FFA3; display:inline-block; font-weight:bold;'>Proceed to Secure Payment</a>", unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"Payment setup error: {str(e)}")
 
 # ── Big Savings Tease Number ──
 potential_monthly_save = 200  # Tease number - can make dynamic later
