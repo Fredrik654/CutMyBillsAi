@@ -1,6 +1,6 @@
 [theme]
-primaryColor = "#10B981"  # Green accent
-backgroundColor = "#0F172A"  # Dark background
-secondaryBackgroundColor = "#1E293B"
-textColor = "#F1F5F9"
-font = "sans serif"
+primaryColor = "#10B981"       # Emerald green - money/success vibe
+backgroundColor = "#0F172A"    # Deep dark slate background
+secondaryBackgroundColor = "#1E293B"  # Slightly lighter dark for cards/forms
+textColor = "#F1F5F9"          # Light gray-white text
+font = "sans serif"            # Clean & modern font
