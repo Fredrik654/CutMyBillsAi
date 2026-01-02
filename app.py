@@ -1,24 +1,10 @@
 import streamlit as st
 import os
 from groq import Groq
-import stripe.error
+import stripe
 import pandas as pd
 import altair as alt
-import stripe.error  # Required for stripe.error.InvalidRequestError
-st.markdown("""
-<style>
-    .stApp { background-color: #000814 !important; }
-    .stButton>button { 
-        background-color: #00FFA3 !important; 
-        color: #000814 !important; 
-        border-radius: 12px !important; 
-        padding: 12px 24px !important; 
-        box-shadow: 0 0 15px #00FFA3 !important; 
-        font-weight: bold !important;
-    }
-    h1 { color: #00FFA3 !important; text-shadow: 0 0 10px #00FFA3 !important; }
-</style>
-""", unsafe_allow_html=True)
+
 # ── Groq setup ──
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
@@ -28,7 +14,38 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
+# ── Stripe setup ──
+stripe.api_key = os.environ.get("STRIPE_API_KEY")
+
+if not stripe.api_key:
+    st.warning("Stripe key not set — paywall will not work. Add STRIPE_API_KEY in secrets.")
+
+# ── Theme & Style (dark + green pop) ──
+st.markdown("""
+<style>
+    .stApp { background-color: #000814 !important; color: #E0F2FE !important; }
+    .stButton>button { 
+        background: linear-gradient(45deg, #10B981, #059669) !important; 
+        color: white !important; 
+        border-radius: 12px !important; 
+        padding: 12px 24px !important; 
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.4) !important; 
+        font-weight: bold !important;
+        border: none !important;
+    }
+    h1 { color: #00FFA3 !important; text-shadow: 0 0 10px #00FFA3 !important; }
+    .stSlider { color: #00FFA3 !important; }
+</style>
+""", unsafe_allow_html=True)
+
 st.title("CutMyBillsAI – Cut Bills, Invest the Savings")
+
+# ── Disclaimer ──
+st.markdown("""
+**Important Disclaimer**  
+This tool provides general estimates and ideas only. It is **not financial, legal, or professional advice**.  
+Savings amounts are approximate. Investments carry risk. Consult a professional.
+""")
 
 # ── Super Simple 3 Sliders ──
 st.markdown("### Quick Setup (3 Sliders Only)")
@@ -73,7 +90,7 @@ data = {
     'Amount': [monthly_bills * 0.35, monthly_bills * 0.25, monthly_bills * 0.2, monthly_bills * 0.2, potential_monthly_save]
 }
 df = pd.DataFrame(data)
-chart = alt.Chart(df).mark_bar(color='#10B981').encode(
+chart = alt.Chart(df).mark_bar(color='#00FFA3').encode(
     x='Category',
     y='Amount',
     tooltip=['Category', 'Amount']
@@ -83,101 +100,86 @@ st.altair_chart(chart, use_container_width=True)
 # ── Teaser 10-Year Projection Chart ──
 st.markdown("**Sneak Peek: What $200/month Saved Could Grow To**")
 years = list(range(1, 11))
-savings = [potential_monthly_save * 12 * year * (1 + 0.08) ** year for year in years]  # 8% compound
+monthly_save = 200
+savings = [monthly_save * 12 * year * (1 + 0.08) ** year for year in years]  # 8% compound
 df_growth = pd.DataFrame({'Year': years, 'Potential Value ($)': savings})
-teaser_chart = alt.Chart(df_growth).mark_area(color="#10B981").encode(
+teaser_chart = alt.Chart(df_growth).mark_area(color="#00FFA3").encode(
     x='Year',
     y='Potential Value ($)',
     tooltip=['Year', 'Potential Value ($)']
 ).properties(width=600, height=300)
 st.altair_chart(teaser_chart, use_container_width=True)
 st.info("This is a basic tease — unlock the **full personalized plan**, rebates, and detailed 10-year growth for just $4.99 CAD!")
-# ── Stripe Paywall - Interrogation Style (Ask → Confirm → Pay) ──
-st.markdown("### Unlock Full Strategy")
-st.markdown("Get detailed investment plan, rebates steps, and 10-year projections for just **$4.99 CAD** (one-time).")
 
-# Step 1: Interrogation - Confirm they want it
-if 'unlock_step' not in st.session_state:
-    st.session_state.unlock_step = 'ask'
+# ── Paywall with direct Stripe Checkout ──
+st.markdown("---")
+st.markdown("**Ready to turn these savings into real wealth?**")
+if st.button("Unlock Full Strategy ($4.99 CAD)"):
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],  # Auto-adds Apple Pay on iOS
+            line_items=[{
+                'price_data': {
+                    'currency': 'cad',
+                    'product_data': {'name': 'Full Investment Strategy Unlock'},
+                    'unit_amount': 499,  # $4.99 CAD
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url = "https://cutmybillsai-4xvx5lmgtsymg5rz6taant.streamlit.app/?success=true",
+            cancel_url = "https://cutmybillsai-4xvx5lmgtsymg5rz6taant.streamlit.app/?cancel=true",
+        )
+        st.markdown(f"<a href='{session.url}' target='_blank' style='font-size:20px; color:#000; background:#00FFA3; padding:14px 30px; border-radius:12px; text-decoration:none; box-shadow: 0 0 15px #00FFA3; display:inline-block; font-weight:bold;'>Proceed to Secure Payment</a>", unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"Payment setup error: {str(e)}")
 
-if st.session_state.unlock_step == 'ask':
-    st.markdown("**Ready to see how your savings could grow?**")
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Yes – Unlock Now ($4.99 CAD)", type="primary"):
-            st.session_state.unlock_step = 'confirm'
-            st.rerun()
-    with col2:
-        if st.button("No thanks, just free tips"):
-            st.session_state.unlock_step = 'ask'  # Reset if needed
-            st.info("Enjoy the free estimate! Come back anytime.")
-
-# Step 2: Confirmation & Payment
-elif st.session_state.unlock_step == 'confirm':
-    st.markdown("**Quick confirmation**")
-    st.markdown(f"- Monthly bills: **${total_bills}**")
-    st.markdown(f"- Goal: **{goal}**")
-    st.markdown("One-time payment of **$4.99 CAD** to unlock everything.")
-    
-    col_confirm, col_back = st.columns(2)
-    with col_confirm:
-        if st.button("Confirm & Pay with Apple Pay / Card", type="primary"):
-            try:
-                session = stripe.checkout.Session.create(
-                    payment_method_types=['card'],  # Auto-includes Apple Pay on iOS
-                    line_items=[{
-                        'price_data': {
-                            'currency': 'cad',
-                            'product_data': {'name': 'Full Investment Strategy Unlock'},
-                            'unit_amount': 499,  # $4.99 CAD in cents
-                        },
-                        'quantity': 1,
-                    }],
-                    mode='payment',
-                    success_url = "https://cutmybillsai-4xvx5lmgtsymg5rz6taant.streamlit.app/?payment=success",
-                    cancel_url = "https://cutmybillsai-4xvx5lmgtsymg5rz6taant.streamlit.app/?payment=cancel",
-                )
-                st.markdown(f"""
-                    <a href='{session.url}' target='_blank' style='
-                        display: inline-block;
-                        font-size: 20px;
-                        color: white;
-                        background: linear-gradient(45deg, #10B981, #059669);
-                        padding: 14px 30px;
-                        border-radius: 12px;
-                        text-decoration: none;
-                        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-                        font-weight: bold;
-                    '>Proceed to Secure Payment</a>
-                """, unsafe_allow_html=True)
-            except Exception as e:
-                st.error(f"Payment setup failed: {str(e)}. Try again or contact support.")
-    
-    with col_back:
-        if st.button("Back"):
-            st.session_state.unlock_step = 'ask'
-            st.rerun()
-
-# ── Premium Content (unlocked after success) ──
-if "payment" in st.query_params and st.query_params["payment"] == "success":
-    st.session_state.unlock_step = 'unlocked'  # Keep unlocked in session
-    st.success("Payment successful! Welcome to the full plan.")
-    
+# ── Premium content ──
+if "success" in st.query_params:
+    st.success("Payment successful! Here's your full strategy to turn savings into reality.")
     prompt_premium = f"""
-    Aggressive Ontario optimizer. User: bills ${total_bills}, household {household}, motivation {energy_level}/10, goal {goal}.
+    Aggressive Ontario optimizer. User: bills ${monthly_bills}, household {household}, motivation {motivation}/10, goal {goal}.
     Give detailed step-by-step plan for cutting bills, applying rebates, and investing savings.
     Include rebates (Home Renovation Savings™ up to 30% on insulation/heat pumps).
     Mix low-risk (GICs/HISAs ~3-4.5%) with higher-risk (tech/AI ETFs QQQ/ARKK ~8-10% returns, renewables TAN).
     5/10-year projections (assume 8-10% average returns, compound monthly).
     Tease long-term boom potential like early tech investors. Disclaimers.
     """
-    with st.spinner("Generating your personalized premium plan..."):
-        try:
-            response_prem = client.chat.completions.create(
+    with st.spinner("Generating full plan..."):
+        response_prem = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt_premium}],
+            max_tokens=1000
+        )
+        st.markdown(response_prem.choices[0].message.content)
+
+    # ── Full Projection Chart ──
+    st.markdown("### Your Personalized 10-Year Savings Growth")
+    years = list(range(1, 11))
+    monthly_save = 2200 / 12
+    savings = [monthly_save * 12 * year * (1 + 0.08) ** year for year in years]  # Compound at 8%
+    df = pd.DataFrame({'Year': years, 'Projected Savings ($)': savings})
+    chart = alt.Chart(df).mark_area(color="#00FFA3").encode(
+        x='Year',
+        y='Projected Savings ($)',
+        tooltip=['Year', 'Projected Savings ($)']
+    ).properties(width=600, height=300)
+    st.altair_chart(chart, use_container_width=True)
+
+    # ── Continue Button ──
+    if st.button("Continue with In-Depth Plan"):
+        st.write("Generating detailed next steps...")
+        continue_prompt = f"""
+        Provide step-by-step in-depth plan for {goal}, including:
+        - How to apply for Ontario rebates.
+        - Investment setup (e.g., open TFSA for GICs).
+        - Monthly check-in tips.
+        - Investment setup for {monthly_bills} savings.
+        """
+        with st.spinner("Generating..."):
+            response_continue = client.chat.completions.create(
                 model="llama-3.1-8b-instant",
-                messages=[{"role": "user", "content": prompt_premium}],
-                max_tokens=1000
+                messages=[{"role": "user", "content": continue_prompt}],
+                max_tokens=600
             )
-            st.markdown(response_prem.choices[0].message.content)
-        except Exception as e:
-            st.error(f"Premium plan error: {str(e)}")
+            st.markdown(response_continue.choices[0].message.content)
