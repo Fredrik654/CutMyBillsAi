@@ -154,11 +154,11 @@ if st.button("Unlock Full Strategy ($4.99 CAD)", key="unlock_button"):  # Add un
         st.markdown(f"<a href='{session.url}' target='_blank' style='font-size:20px; color:#000; background:#00FFA3; padding:14px 30px; border-radius:12px; text-decoration:none; box-shadow: 0 0 15px #00FFA3; display:inline-block; font-weight:bold;'>Proceed to Secure Payment</a>", unsafe_allow_html=True)
     except Exception as e:
         st.error(f"Payment setup error: {str(e)}")
-# ── Premium content ──
+# ── Premium content (only after successful payment) ──
 if "success" in st.query_params:
     st.success("Payment successful! Here's your full strategy to turn savings into reality.")
     prompt_premium = f"""
-    Aggressive Ontario optimizer. User: bills ${monthly_bills}, household {household}, motivation {motivation}/10, goal {goal}.
+    Aggressive Ontario optimizer. User: bills ${{{monthly_bills}}}, household {{{household}}}, motivation {{{energy_level}}}/10, goal {{{goal}}}.
     Give detailed step-by-step plan for cutting bills, applying rebates, and investing savings.
     Include rebates (Home Renovation Savings™ up to 30% on insulation/heat pumps).
     Mix low-risk (GICs/HISAs ~3-4.5%) with higher-risk (tech/AI ETFs QQQ/ARKK ~8-10% returns, renewables TAN).
@@ -166,13 +166,15 @@ if "success" in st.query_params:
     Tease long-term boom potential like early tech investors. Disclaimers.
     """
     with st.spinner("Generating full plan..."):
-        response_prem = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[{"role": "user", "content": prompt_premium}],
-            max_tokens=1000
-        )
-        st.markdown(response_prem.choices[0].message.content)
-
+        try:
+            response_prem = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[{"role": "user", "content": prompt_premium}],
+                max_tokens=1000
+            )
+            st.markdown(response_prem.choices[0].message.content)
+        except Exception as e:
+            st.error(f"Premium AI error: {str(e)}")
     # ── Full Projection Chart ──
     st.markdown("### Your Personalized 10-Year Savings Growth")
     years = list(range(1, 11))
